@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BINSTORE - Premium eSIM Provider</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: { brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a' } },
+                    animation: { 'blob': 'blob 7s infinite', 'fade-in-up': 'fadeInUp 0.8s ease-out forwards' },
+                    keyframes: {
+                        blob: { '0%': { transform: 'translate(0px, 0px) scale(1)' }, '33%': { transform: 'translate(30px, -50px) scale(1.1)' }, '66%': { transform: 'translate(-20px, 20px) scale(0.9)' }, '100%': { transform: 'translate(0px, 0px) scale(1)' } },
+                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; overflow-x: hidden; }
+        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05); }
+        .glass-dark { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .hover-lift { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .hover-lift:hover { transform: translateY(-8px) scale(1.02); }
+        
+        /* Dropdown transition */
+        .submenu-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out; }
+        .submenu.open .submenu-content { max-height: 500px; }
+        .submenu.open .fa-chevron-down { transform: rotate(180deg); }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- OVERLAYS -->
+    <div id="overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" onclick="uiManager.closeAll()"></div>
+
+    <!-- 1. HEADER (Glassmorphism) -->
+    <header id="mainHeader" class="fixed top-0 w-full z-40 transition-all duration-300 glass-panel border-b-0">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 bg-brand-600 rounded-2xl flex items-center justify-center transform group-hover:rotate-12 transition shadow-lg shadow-brand-500/30">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3h6a2 2 0 012 2v14a2 2 0 01-2 2H9a2 2 0 01-2-2V5a2 2 0 012-2zM9 9h6m-6 4h6m-6 4h2"></path></svg>
+                </div>
+                <span class="text-2xl font-black tracking-tight text-slate-900">BIN<span class="text-brand-600">STORE</span></span>
+            </a>
+            
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#store" class="font-semibold text-slate-600 hover:text-brand-600 transition">Cửa hàng</a>
+                <a href="#features" class="font-semibold text-slate-600 hover:text-brand-600 transition">Tính năng</a>
+                <a href="#guide" class="font-semibold text-slate-600 hover:text-brand-600 transition">Hướng dẫn</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="uiManager.toggleCart()" class="relative p-2 text-slate-600 hover:text-brand-600 transition hover:bg-slate-100 rounded-full">
+                    <i class="fas fa-shopping-bag text-xl"></i>
+                    <span id="cartBadge" class="absolute top-0 right-0 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full transform scale-0 transition-transform">0</span>
+                </button>
+                <button onclick="uiManager.toggleSidebar()" class="p-2 text-slate-600 hover:text-brand-600 transition hover:bg-slate-100 rounded-full">
+                    <i class="fas fa-bars-staggered text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. SIDEBAR MENU (Mô phỏng dữ liệu thật từ ảnh) -->
+    <aside id="sidebar" class="fixed top-0 right-0 h-full w-[90%] max-w-[380px] bg-white z-50 transform translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-[-20px_0_40px_rgba(0,0,0,0.1)] flex flex-col">
+        <div class="p-5 flex justify-end">
+            <button onclick="uiManager.toggleSidebar()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Khu vực Auth (Thay đổi dựa trên logic) -->
+        <div id="authSection" class="px-6 pb-6 border-b border-slate-100">
+            <!-- Trạng thái chưa đăng nhập -->
+            <div id="loggedOutState" class="block">
+                <h3 class="font-bold text-lg mb-3">Chào mừng bạn,</h3>
+                <button onclick="uiManager.openAuthModal()" class="w-full bg-brand-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand-500/30 hover:bg-brand-700 transition active:scale-95">Đăng nhập / Đăng ký</button>
+            </div>
+            <!-- Trạng thái đã đăng nhập (Giống hệt ảnh cung cấp) -->
+            <div id="loggedInState" class="hidden flex items-center gap-4">
+                <div class="w-14 h-14 bg-slate-100 rounded-full border-2 border-brand-500 flex items-center justify-center text-xl font-bold text-slate-500 overflow-hidden">
+                    C <!-- Avatar placeholder -->
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <h3 class="font-bold text-slate-900 truncate text-lg">ファミマグッズコヒ</h3>
+                    <p class="text-sm text-slate-500 truncate">nam161277d@gmail.com</p>
+                </div>
+                <button onclick="authManager.logout()" class="text-slate-400 hover:text-rose-500 p-2" title="Đăng xuất">
+                    <i class="fas fa-sign-out-alt text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Động -->
+        <div class="flex-1 overflow-y-auto px-6 py-4 hide-scroll space-y-2">
+            <div class="submenu rounded-xl border border-slate-100 overflow-hidden">
+                <button class="w-full flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition font-bold text-slate-800" onclick="this.parentElement.classList.toggle('open')">
+                    <span><i class="fas fa-globe-asia text-brand-500 mr-2"></i> MUA eSIM</span>
+                    <i class="fas fa-chevron-down text-sm transition-transform"></i>
+                </button>
+                <div class="submenu-content bg-white">
+                    <a href="#" class="block px-10 py-3 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 border-l-2 border-transparent hover:border-brand-500 transition">eSIM Nhật Bản</a>
+                    <a href="#" class="block px-10 py-3 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 border-l-2 border-transparent hover:border-brand-500 transition">eSIM Hàn Quốc</a>
+                    <a href="#" class="block px-10 py-3 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 border-l-2 border-transparent hover:border-brand-500 transition">eSIM Thái Lan</a>
+                    <a href="#" class="block px-10 py-3 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 border-l-2 border-transparent hover:border-brand-500 transition">Tất cả quốc gia</a>
+                </div>
+            </div>
+
+            <div class="submenu rounded-xl border border-slate-100 overflow-hidden">
+                <button class="w-full flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 transition font-bold text-slate-800" onclick="this.parentElement.classList.toggle('open')">
+                    <span><i class="fas fa-book text-brand-500 mr-2"></i> HƯỚNG DẪN</span>
+                    <i class="fas fa-chevron-down text-sm transition-transform"></i>
+                </button>
+                <div class="submenu-content bg-white">
+                    <a href="#" class="block px-10 py-3 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 transition">Cài đặt eSIM</a>
+                    <a href="#" class="block px-10 py-3 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 transition">Kiểm tra thiết bị</a>
+                </div>
+            </div>
+
+            <a href="#" class="flex items-center p-4 bg-white hover:bg-slate-50 transition font-bold text-slate-800 rounded-xl">VỀ CHÚNG TÔI</a>
+            <a href="#" class="flex items-center p-4 bg-white hover:bg-slate-50 transition font-bold text-slate-800 rounded-xl">TIN TỨC</a>
+            <a href="#" class="flex items-center p-4 bg-brand-50 text-brand-600 font-bold rounded-xl border border-brand-100">LIÊN HỆ</a>
+        </div>
+    </aside>
+
+    <!-- 3. CART DRAWER (Hoạt động thực tế) -->
+    <aside id="cartDrawer" class="fixed top-0 right-0 h-full w-[90%] max-w-[400px] bg-slate-50 z-50 transform translate-x-full transition-transform duration-500 flex flex-col shadow-2xl">
+        <div class="p-5 bg-white flex justify-between items-center border-b border-slate-100">
+            <h2 class="font-bold text-xl"><i class="fas fa-shopping-cart text-brand-600 mr-2"></i> Giỏ hàng (<span id="cartCount">0</span>)</h2>
+            <button onclick="uiManager.toggleCart()" class="w-8 h-8 flex items-center justify-center text-slate-500 bg-slate-100 rounded-full"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div id="cartItems" class="flex-1 overflow-y-auto p-5 space-y-4">
+            <!-- Render bằng JS -->
+            <div id="emptyCart" class="h-full flex flex-col items-center justify-center text-slate-400">
+                <i class="fas fa-box-open text-6xl mb-4 text-slate-200"></i>
+                <p>Giỏ hàng của bạn đang trống</p>
+                <button onclick="uiManager.toggleCart()" class="mt-4 px-6 py-2 bg-brand-50 text-brand-600 rounded-full font-bold">Khám phá ngay</button>
+            </div>
+        </div>
+
+        <div class="p-6 bg-white border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-slate-500 font-medium">Tổng thanh toán:</span>
+                <span id="cartTotal" class="text-2xl font-black text-slate-900">0₫</span>
+            </div>
+            <button onclick="cartManager.checkout()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-brand-600 transition flex justify-center items-center gap-2">
+                Thanh Toán Ngay <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 4. AUTH MODAL (Form Logic) -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden flex-col items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl transform scale-95 opacity-0 transition-all duration-300 relative z-10 flex flex-col" id="authBox">
+            <div class="bg-slate-900 p-8 text-center relative">
+                <button onclick="uiManager.closeAll()" class="absolute top-4 right-4 text-white/50 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                <div class="w-16 h-16 bg-brand-500 rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl shadow-lg shadow-brand-500/50"><i class="fas fa-fingerprint"></i></div>
+                <h2 class="text-2xl font-black text-white" id="authTitle">Xác thực tài khoản</h2>
+            </div>
+            <div class="p-8 pb-10">
+                <form id="loginForm" onsubmit="authManager.processLogin(event)" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Email</label>
+                        <input type="email" id="emailInput" value="nam161277d@gmail.com" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Mật khẩu</label>
+                        <input type="password" value="password123" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition">
+                    </div>
+                    <button type="submit" class="w-full bg-brand-600 text-white font-bold py-3.5 rounded-xl hover:bg-brand-700 transition shadow-lg shadow-brand-500/30">Đăng nhập</button>
+                </form>
+                <div class="mt-6 flex items-center justify-center gap-4">
+                    <div class="h-px bg-slate-200 flex-1"></div>
+                    <span class="text-xs text-slate-400 font-bold uppercase">Hoặc đăng nhập bằng</span>
+                    <div class="h-px bg-slate-200 flex-1"></div>
+                </div>
+                <button onclick="authManager.processLogin(event)" class="mt-6 w-full bg-white border border-slate-200 text-slate-700 font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 transition shadow-sm">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" class="w-5 h-5"> Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. HERO SECTION (Hiệu ứng Background Float) -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-slate-900">
+        <!-- Floating shapes -->
+        <div class="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div class="absolute top-0 -right-4 w-72 h-72 bg-brand-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+
+        <div class="max-w-7xl mx-auto px-4 relative z-10 flex flex-col items-center text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-dark border-brand-500/30 text-brand-400 text-sm font-bold mb-8 animate-fade-in-up">
+                <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Công nghệ eSIM tương lai
+            </div>
+            
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-tight mb-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+                Thế giới kết nối <br>trong <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-blue-500">lòng bàn tay</span>
+            </h1>
+            
+            <p class="text-slate-400 text-lg max-w-2xl mb-10 animate-fade-in-up" style="animation-delay: 0.2s;">
+                Kích hoạt 4G/5G tại hơn 190+ quốc gia mà không cần tháo SIM vật lý. Giải pháp tối ưu cho hành trình số hóa của bạn.
+            </p>
+
+            <!-- THỰC TẾ: Thanh tìm kiếm có filter -->
+            <div class="w-full max-w-2xl glass-panel p-2 rounded-full flex items-center shadow-2xl animate-fade-in-up" style="animation-delay: 0.3s;">
+                <div class="pl-5 text-slate-400"><i class="fas fa-plane-departure text-xl"></i></div>
+                <input type="text" id="searchInput" oninput="storeManager.filterStore()" placeholder="Nhập quốc gia bạn muốn đến (VD: Nhật Bản, Châu Âu...)" class="w-full bg-transparent border-none outline-none px-4 py-3 text-slate-800 font-medium placeholder-slate-400">
+                <button class="bg-slate-900 text-white font-bold px-8 py-3 rounded-full hover:bg-brand-600 transition flex-shrink-0">
+                    Tìm kiếm
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. THỰC TẾ: STORE & FILTER LOGIC -->
+    <section id="store" class="py-24 bg-slate-50 relative">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4">Khám phá các <span class="text-brand-600">Gói eSIM</span></h2>
+                <p class="text-slate-500">Giá cả minh bạch, không phí ẩn. Nhận QR tức thì.</p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex flex-wrap justify-center gap-3 mb-10 reveal">
+                <button onclick="storeManager.setFilter('all')" class="filter-btn active px-6 py-2 rounded-full font-bold text-sm bg-slate-900 text-white shadow-md transition">Tất cả</button>
+                <button onclick="storeManager.setFilter('Asia')" class="filter-btn px-6 py-2 rounded-full font-bold text-sm bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Châu Á</button>
+                <button onclick="storeManager.setFilter('Europe')" class="filter-btn px-6 py-2 rounded-full font-bold text-sm bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Châu Âu</button>
+                <button onclick="storeManager.setFilter('Global')" class="filter-btn px-6 py-2 rounded-full font-bold text-sm bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Toàn cầu</button>
+            </div>
+
+            <!-- Render Products Grid via JS -->
+            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Data đổ vào đây -->
+            </div>
+            
+            <div id="noProductMsg" class="hidden text-center py-12 text-slate-500 font-medium">
+                <i class="fas fa-search-minus text-4xl mb-3 text-slate-300"></i><br>
+                Không tìm thấy gói cước phù hợp. Vui lòng thử từ khóa khác.
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. THỰC TẾ: LIVE REVIEWS ĐƯỢC GENERATE BẰNG AI -->
+    <section class="py-24 bg-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 reveal">
+                <div>
+                    <div class="flex items-center gap-2 text-brand-600 font-bold mb-2 uppercase tracking-widest text-xs"><i class="fas fa-satellite-dish"></i> Live Feedback</div>
+                    <h2 class="text-3xl md:text-4xl font-black text-slate-900">Trải nghiệm thực tế</h2>
+                </div>
+                <div class="mt-4 md:mt-0 flex gap-2">
+                    <button onclick="scrollReviews('left')" class="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 transition"><i class="fas fa-arrow-left"></i></button>
+                    <button onclick="scrollReviews('right')" class="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 transition"><i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <div id="reviewsContainer" class="flex overflow-x-auto hide-scroll gap-6 pb-8 snap-x scroll-smooth reveal" style="padding-left: 10px;">
+                <!-- Review render JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-300 py-16 border-t-4 border-brand-500">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-10">
+            <div>
+                <a href="#" class="flex items-center gap-2 mb-6">
+                    <div class="w-8 h-8 bg-brand-500 rounded flex items-center justify-center"><i class="fas fa-sim-card text-white"></i></div>
+                    <span class="text-2xl font-black text-white">BIN<span class="text-brand-500">STORE</span></span>
+                </a>
+                <p class="text-sm leading-relaxed mb-6">Đơn vị cung cấp giải pháp viễn thông số 1 cho người đi du lịch, công tác. Kết nối tức thì, chi phí tối ưu.</p>
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-brand-500 hover:text-white transition cursor-pointer"><i class="fab fa-facebook-f"></i></div>
+                    <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-brand-500 hover:text-white transition cursor-pointer"><i class="fab fa-tiktok"></i></div>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-wider text-sm">Điểm đến HOT</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="hover:text-brand-400 transition">Nhật Bản</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">Hàn Quốc</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">Toàn Châu Âu</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">Mỹ & Canada</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-wider text-sm">Hỗ trợ</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="hover:text-brand-400 transition">Cài đặt trên iOS</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">Cài đặt trên Android</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">Kiểm tra tương thích</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">Chính sách hoàn tiền</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-wider text-sm">Đăng ký đại lý</h4>
+                <p class="text-sm mb-4">Nhận mức chiết khấu hấp dẫn lên tới 40% khi tham gia mạng lưới phân phối của chúng tôi.</p>
+                <div class="flex">
+                    <input type="email" placeholder="Email của bạn..." class="bg-slate-800 border-none outline-none px-4 py-2 rounded-l-lg w-full text-sm">
+                    <button class="bg-brand-600 text-white px-4 py-2 rounded-r-lg font-bold"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-slate-800 text-center text-sm flex flex-col md:flex-row justify-between items-center">
+            <p>© 2026 BINSTORE. Built for scale.</p>
+            <div class="flex gap-4 mt-4 md:mt-0 opacity-50">
+                <i class="fab fa-cc-visa text-2xl"></i>
+                <i class="fab fa-cc-mastercard text-2xl"></i>
+                <i class="fab fa-cc-paypal text-2xl"></i>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CSS LOGIC BẰNG JAVASCRIPT ĐỂ TỐI ĐA HOÁ TRẢI NGHIỆM -->
+    <script>
+        /* === 1. DATABASE SẢN PHẨM (Mô phỏng) === */
+        const DB_PRODUCTS = [
+            { id: 'p1', name: 'eSIM Nhật Bản', region: 'Asia', data: 'Không giới hạn', days: '3-30', price: 120000, img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500', flag: '🇯🇵', provider: 'Softbank' },
+            { id: 'p2', name: 'eSIM Hàn Quốc', region: 'Asia', data: '3GB/Ngày', days: '5-15', price: 95000, img: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=500', flag: '🇰🇷', provider: 'SK Telecom' },
+            { id: 'p3', name: 'eSIM Châu Âu (43 nước)', region: 'Europe', data: '15GB', days: '14', price: 380000, img: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=500', flag: '🇪🇺', provider: 'Orange / Vodafone' },
+            { id: 'p4', name: 'eSIM Thái Lan', region: 'Asia', data: '50GB + Nghe gọi', days: '10', price: 150000, img: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500', flag: '🇹🇭', provider: 'AIS/True' },
+            { id: 'p5', name: 'eSIM Global (144 nước)', region: 'Global', data: '10GB', days: '30', price: 850000, img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500', flag: '🌐', provider: 'Multi-network' },
+            { id: 'p6', name: 'eSIM Singapore', region: 'Asia', data: '100GB', days: '7', price: 180000, img: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=500', flag: '🇸🇬', provider: 'Singtel' },
+            { id: 'p7', name: 'eSIM Pháp', region: 'Europe', data: '50GB', days: '14', price: 350000, img: 'https://images.unsplash.com/photo-1502602898657-3e907fa3a289?w=500', flag: '🇫🇷', provider: 'Orange' },
+            { id: 'p8', name: 'eSIM Trung Quốc (Vượt tường lửa)', region: 'Asia', data: '10GB', days: '8', price: 220000, img: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=500', flag: '🇨🇳', provider: 'China Unicom' }
+        ];
+
+        /* === 2. QUẢN LÝ GIAN HÀNG & TÌM KIẾM === */
+        const storeManager = {
+            currentFilter: 'all',
+            init() {
+                this.render(DB_PRODUCTS);
+            },
+            setFilter(region) {
+                this.currentFilter = region;
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('bg-slate-900', 'text-white');
+                    btn.classList.add('bg-white', 'text-slate-600');
+                });
+                event.target.classList.remove('bg-white', 'text-slate-600');
+                event.target.classList.add('bg-slate-900', 'text-white');
+                this.filterStore();
+            },
+            filterStore() {
+                const keyword = document.getElementById('searchInput').value.toLowerCase();
+                const filtered = DB_PRODUCTS.filter(p => {
+                    const matchRegion = this.currentFilter === 'all' || p.region === this.currentFilter;
+                    const matchSearch = p.name.toLowerCase().includes(keyword);
+                    return matchRegion && matchSearch;
+                });
+                this.render(filtered);
+            },
+            render(products) {
+                const grid = document.getElementById('productGrid');
+                const noMsg = document.getElementById('noProductMsg');
+                if (products.length === 0) {
+                    grid.innerHTML = '';
+                    noMsg.classList.remove('hidden');
+                    return;
+                }
+                noMsg.classList.add('hidden');
+                grid.innerHTML = products.map((p, index) => `
+                    <div class="bg-white rounded-3xl p-3 card-shadow hover-lift reveal active" style="transition-delay: ${index * 0.1}s">
+                        <div class="relative h-44 rounded-2xl overflow-hidden mb-4">
+                            <img src="${p.img}" loading="lazy" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/30 to-transparent flex flex-col justify-end p-4">
+                                <h3 class="text-white font-black text-lg shadow-black drop-shadow-md"><span class="mr-2">${p.flag}</span>${p.name}</h3>
+                            </div>
+                            <div class="absolute top-3 right-3 bg-white/20 backdrop-blur-md rounded-lg px-2 py-1 text-xs font-bold text-white border border-white/30">
+                                <i class="fas fa-signal text-brand-400 mr-1"></i> ${p.provider}
+                            </div>
+                        </div>
+                        <div class="px-2 pb-2">
+                            <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+                                <div class="text-slate-500 text-xs font-medium"><i class="fas fa-wifi text-slate-400 w-4"></i> ${p.data}</div>
+                                <div class="text-slate-500 text-xs font-medium"><i class="far fa-calendar-alt text-slate-400 w-4"></i> ${p.days} Ngày</div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-0.5">Giá trọn gói</p>
+                                    <span class="text-brand-600 font-black text-lg">${p.price.toLocaleString('vi-VN')}₫</span>
+                                </div>
+                                <button onclick="cartManager.add('${p.id}')" class="bg-slate-900 text-white w-10 h-10 rounded-xl flex items-center justify-center hover:bg-brand-500 transition shadow-lg">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        };
+
+        /* === 3. QUẢN LÝ GIỎ HÀNG THỰC TẾ === */
+        const cartManager = {
+            items: [],
+            add(id) {
+                const product = DB_PRODUCTS.find(p => p.id === id);
+                const existing = this.items.find(i => i.id === id);
+                if(existing) existing.qty += 1;
+                else this.items.push({...product, qty: 1});
+                
+                this.updateUI();
+                uiManager.triggerBadgeBounce();
+                
+                // Tự động mở giỏ hàng khi thêm
+                if(document.getElementById('cartDrawer').classList.contains('translate-x-full')) {
+                    uiManager.toggleCart();
+                }
+            },
+            remove(id) {
+                this.items = this.items.filter(i => i.id !== id);
+                this.updateUI();
+            },
+            changeQty(id, delta) {
+                const item = this.items.find(i => i.id === id);
+                if(item) {
+                    item.qty += delta;
+                    if(item.qty <= 0) this.remove(id);
+                    else this.updateUI();
+                }
+            },
+            updateUI() {
+                const container = document.getElementById('cartItems');
+                const emptyMsg = document.getElementById('emptyCart');
+                const countEls = [document.getElementById('cartCount'), document.getElementById('cartBadge')];
+                const totalEl = document.getElementById('cartTotal');
+                
+                let totalQty = 0;
+                let totalPrice = 0;
+
+                if (this.items.length === 0) {
+                    container.innerHTML = '';
+                    container.appendChild(emptyMsg);
+                    emptyMsg.classList.remove('hidden');
+                } else {
+                    emptyMsg.classList.add('hidden');
+                    container.innerHTML = this.items.map(item => {
+                        totalQty += item.qty;
+                        totalPrice += (item.price * item.qty);
+                        return `
+                        <div class="flex items-center gap-4 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm animate-fade-in-up">
+                            <img src="${item.img}" class="w-16 h-16 rounded-xl object-cover">
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-800 text-sm truncate">${item.name}</h4>
+                                <p class="text-brand-600 font-bold text-sm">${item.price.toLocaleString('vi-VN')}₫</p>
+                            </div>
+                            <div class="flex flex-col items-center gap-1">
+                                <button onclick="cartManager.changeQty('${item.id}', 1)" class="w-6 h-6 bg-slate-100 rounded-md hover:bg-brand-100 hover:text-brand-600"><i class="fas fa-plus text-xs"></i></button>
+                                <span class="text-sm font-bold w-6 text-center">${item.qty}</span>
+                                <button onclick="cartManager.changeQty('${item.id}', -1)" class="w-6 h-6 bg-slate-100 rounded-md hover:bg-rose-100 hover:text-rose-600"><i class="fas fa-minus text-xs"></i></button>
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+                }
+
+                // Update Badges & Totals
+                countEls.forEach(el => {
+                    el.innerText = totalQty;
+                    if(totalQty > 0) el.classList.replace('scale-0', 'scale-100');
+                    else el.classList.replace('scale-100', 'scale-0');
+                });
+                totalEl.innerText = totalPrice.toLocaleString('vi-VN') + '₫';
+            },
+            checkout() {
+                if(this.items.length === 0) return alert("Giỏ hàng đang trống!");
+                if(!authManager.isLoggedIn) {
+                    alert("Vui lòng đăng nhập để thanh toán.");
+                    uiManager.closeAll();
+                    uiManager.openAuthModal();
+                } else {
+                    alert(`Đang chuyển hướng thanh toán qua thẻ Napas/Visa...\nTổng tiền: ${document.getElementById('cartTotal').innerText}`);
+                }
+            }
+        };
+
+        /* === 4. QUẢN LÝ TÀI KHOẢN (Auth State) === */
+        const authManager = {
+            isLoggedIn: false,
+            processLogin(e) {
+                e.preventDefault();
+                // Giả lập logic đăng nhập khớp với profile nam161277d@gmail.com (Từ yêu cầu & ảnh)
+                this.isLoggedIn = true;
+                document.getElementById('loggedOutState').classList.add('hidden');
+                document.getElementById('loggedInState').classList.remove('hidden');
+                document.getElementById('loggedInState').classList.add('flex');
+                
+                uiManager.closeAll();
+                // Bắn pháo hoa nhẹ giả lập success
+                alert("Đăng nhập thành công! Chào mừng ファミマグッズコヒ");
+            },
+            logout() {
+                this.isLoggedIn = false;
+                document.getElementById('loggedInState').classList.remove('flex');
+                document.getElementById('loggedInState').classList.add('hidden');
+                document.getElementById('loggedOutState').classList.remove('hidden');
+                alert("Đã đăng xuất tài khoản.");
+            }
+        };
+
+        /* === 5. QUẢN LÝ GIAO DIỆN (UI & Animations) === */
+        const uiManager = {
+            sidebar: document.getElementById('sidebar'),
+            cartDrawer: document.getElementById('cartDrawer'),
+            overlay: document.getElementById('overlay'),
+            authModal: document.getElementById('authModal'),
+            authBox: document.getElementById('authBox'),
+
+            toggleSidebar() {
+                const isClosed = this.sidebar.classList.contains('translate-x-full');
+                this.closeAll(); 
+                if (isClosed) {
+                    this.sidebar.classList.remove('translate-x-full');
+                    this.showOverlay();
+                }
+            },
+            toggleCart() {
+                const isClosed = this.cartDrawer.classList.contains('translate-x-full');
+                this.closeAll();
+                if (isClosed) {
+                    this.cartDrawer.classList.remove('translate-x-full');
+                    this.showOverlay();
+                }
+            },
+            openAuthModal() {
+                this.closeAll();
+                this.authModal.classList.remove('hidden');
+                this.authModal.classList.add('flex');
+                this.showOverlay();
+                setTimeout(() => {
+                    this.authBox.classList.remove('scale-95', 'opacity-0');
+                    this.authBox.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+            showOverlay() {
+                this.overlay.classList.remove('hidden');
+                setTimeout(() => this.overlay.classList.remove('opacity-0'), 10);
+            },
+            closeAll() {
+                this.sidebar.classList.add('translate-x-full');
+                this.cartDrawer.classList.add('translate-x-full');
+                
+                this.authBox.classList.remove('scale-100', 'opacity-100');
+                this.authBox.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    this.authModal.classList.remove('flex');
+                    this.authModal.classList.add('hidden');
+                }, 300);
+
+                this.overlay.classList.add('opacity-0');
+                setTimeout(() => this.overlay.classList.add('hidden'), 300);
+            },
+            triggerBadgeBounce() {
+                const badge = document.getElementById('cartBadge');
+                badge.classList.add('-translate-y-2');
+                setTimeout(() => badge.classList.remove('-translate-y-2'), 200);
+            }
+        };
+
+        /* === 6. HỆ THỐNG AI REVIEW (Random Data Generation) === */
+        const aiData = {
+            names: ["Lê Tuấn", "Minh Hoàng", "Phạm Trà", "Vũ Khắc", "Bùi Linh", "Ngô Quyền", "Thái Hà", "Đỗ Phúc"],
+            locations: ["Hà Nội", "Hồ Chí Minh", "Nhật Bản (Expats)", "Singapore", "Đà Nẵng"],
+            reviews: [
+                "Setup phát ăn ngay. Sóng Softbank căng đét 5 vạch.",
+                "Thanh toán xong quét mã QR cài đặt trong 1 phút. Quá đỉnh so với việc mua sim vật lý.",
+                "Support rep siêu nhanh. eSIM ổn định, đi tàu điện ngầm bên Hàn vẫn lướt map vi vu.",
+                "Đã test speed, ping thấp. Chơi game lúc rảnh khi du lịch vẫn okela.",
+                "Hoàn hảo, không có gì để chê. Giữ được sim gốc để nhận mã OTP ngân hàng."
+            ],
+            generate(count) {
+                const container = document.getElementById('reviewsContainer');
+                let html = '';
+                for(let i=0; i<count; i++) {
+                    const name = this.names[Math.floor(Math.random()*this.names.length)];
+                    const loc = this.locations[Math.floor(Math.random()*this.locations.length)];
+                    const rv = this.reviews[Math.floor(Math.random()*this.reviews.length)];
+                    const color = Math.floor(Math.random()*16777215).toString(16);
+                    html += `
+                    <div class="min-w-[320px] max-w-[350px] bg-slate-900 rounded-[28px] p-8 snap-center flex flex-col justify-between hover-lift shadow-xl">
+                        <div>
+                            <div class="text-yellow-400 text-sm mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="text-slate-300 font-medium italic leading-relaxed mb-8">"${rv}"</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <img src="https://ui-avatars.com/api/?name=${name.replace(' ','+')}&background=${color}&color=fff" class="w-12 h-12 rounded-full border-2 border-white/20">
+                            <div>
+                                <p class="text-white font-bold">${name}</p>
+                                <p class="text-slate-500 text-xs">${loc}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+                container.innerHTML = html;
+            }
+        };
+
+        function scrollReviews(dir) {
+            const container = document.getElementById('reviewsContainer');
+            const scrollAmount = 350;
+            if(dir === 'left') container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            else container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+
+        /* === 7. SCROLL OBSERVER ĐỂ TẠO HIỆU ỨNG REVEAL TRANG === */
+        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        /* === INIT === */
+        document.addEventListener('DOMContentLoaded', () => {
+            storeManager.init();
+            aiData.generate(6);
+            
+            // Theo dõi scroll cho hiệu ứng Header Glass
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('mainHeader');
+                if (window.scrollY > 50) {
+                    header.classList.add('shadow-md');
+                } else {
+                    header.classList.remove('shadow-md');
+                }
+            });
+
+            // Gắn observer cho các element .reveal
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>
