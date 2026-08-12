@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Kiểm tra thiết bị - BINSTORE eSIM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 900: '#1e3a8a' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(241, 245, 249, 1); }
+        .scanner-line {
+            width: 100%; height: 4px; background: #3b82f6; position: absolute; top: 0; left: 0;
+            box-shadow: 0 0 15px #3b82f6, 0 0 30px #3b82f6;
+            animation: scan 2.5s infinite cubic-bezier(0.4, 0, 0.2, 1); display: none; z-index: 10;
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .tab-btn.active { color: #2563eb; border-bottom: 2px solid #2563eb; background-color: #eff6ff; }
+        .dropdown-suggest { max-height: 250px; overflow-y: auto; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased pb-20">
+
+    <!-- HEADER (CÓ NÚT TRỞ VỀ TRANG CHỦ) -->
+    <header class="fixed top-0 w-full z-40 glass-header shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 text-slate-500 hover:text-brand-600 transition bg-slate-100 hover:bg-brand-50 px-3 py-1.5 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <span class="font-bold text-sm">Trang chủ</span>
+            </a>
+            <span class="font-black tracking-tight text-slate-900 text-xl">BIN<span class="text-brand-600">STORE</span></span>
+            <div class="w-24"></div> <!-- Spacer để cân bằng -->
+        </div>
+    </header>
+
+    <main class="pt-24 px-4 max-w-4xl mx-auto space-y-8">
+        
+        <!-- HERO TITLE -->
+        <div class="text-center bg-gradient-to-br from-slate-900 to-slate-800 rounded-[32px] p-8 md:p-12 text-white shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-brand-500 rounded-full mix-blend-screen filter blur-[80px] opacity-40"></div>
+            <h1 class="text-3xl md:text-4xl font-black mb-4 relative z-10">Kiểm tra khả năng tương thích</h1>
+            <p class="text-slate-300 text-sm md:text-base max-w-xl mx-auto relative z-10">Đảm bảo điện thoại của bạn không bị khóa mạng và có hỗ trợ eSIM trước khi thanh toán để có chuyến đi trọn vẹn nhất.</p>
+        </div>
+
+        <!-- CẢNH BÁO QUAN TRỌNG -->
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-4">
+            <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <div>
+                <h4 class="font-bold text-amber-800 mb-1">Cảnh báo máy Xách Tay & Khóa Mạng (Lock)</h4>
+                <p class="text-sm text-amber-700 leading-relaxed">
+                    1. <strong>Điện thoại Lock:</strong> Không thể sử dụng eSIM du lịch. Vui lòng liên hệ nhà mạng để mở khóa (Unlock) trước.<br>
+                    2. <strong>iPhone xách tay TQ/HK/Macao:</strong> Các mã máy mang đuôi CH/A, ZA/A thường có 2 SIM vật lý và <strong>KHÔNG CÓ</strong> chip eSIM.
+                </p>
+            </div>
+        </div>
+
+        <!-- KHU VỰC 1: TRA CỨU THÔNG MINH (CÓ AUTO-SUGGEST) -->
+        <div class="bg-white p-6 md:p-8 rounded-[32px] shadow-lg shadow-slate-200/50 border border-slate-100">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center font-black">1</div>
+                <div>
+                    <h3 class="font-bold text-xl text-slate-900">Tìm kiếm thông minh</h3>
+                    <p class="text-slate-500 text-sm">Gõ tên điện thoại của bạn vào đây</p>
+                </div>
+            </div>
+            
+            <div class="relative mb-6">
+                <svg class="w-6 h-6 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="deviceSearch" oninput="handleSearchInput()" placeholder="VD: iPhone 14 Pro, Galaxy S23..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-12 py-4 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition font-bold text-lg">
+                <button onclick="clearSearch()" id="clearBtn" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hidden"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                
+                <!-- Hộp thả xuống gợi ý -->
+                <div id="suggestBox" class="absolute w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-2xl z-20 hidden dropdown-suggest">
+                    <ul id="suggestList" class="py-2"></ul>
+                </div>
+            </div>
+
+            <!-- Kết quả tìm kiếm -->
+            <div id="searchResultArea" class="hidden transition-all">
+                <div id="searchMatch" class="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col md:flex-row gap-4 hidden items-center md:items-start text-center md:text-left">
+                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-emerald-800 text-xl mb-2">Xin chúc mừng!</h4>
+                        <p class="text-emerald-700" id="matchText">Thiết bị hỗ trợ eSIM.</p>
+                        <p class="text-xs text-emerald-600 mt-2 font-medium">*Lưu ý: Không áp dụng nếu máy là bản Lock hoặc xách tay TQ/HK.</p>
+                    </div>
+                </div>
+
+                <div id="searchNoMatch" class="p-6 bg-rose-50 border border-rose-200 rounded-2xl flex flex-col md:flex-row gap-4 hidden items-center md:items-start text-center md:text-left">
+                    <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-rose-800 text-xl mb-2">Chưa có thông tin</h4>
+                        <p class="text-rose-700">Rất tiếc, hệ thống chưa tìm thấy tên máy này trong danh sách hỗ trợ, hoặc bạn vui lòng kiểm tra lại chính tả.</p>
+                        <p class="text-sm text-rose-600 mt-2 font-bold">Hãy sử dụng CÁCH 2 bên dưới để kiểm tra chính xác 100%.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative flex py-2 items-center justify-center">
+            <span class="bg-slate-200 text-slate-500 px-4 py-1 rounded-full text-xs font-bold uppercase">Cách chính xác nhất</span>
+        </div>
+
+        <!-- KHU VỰC 2: KIỂM TRA BẰNG EID MÁY (CHUẨN 100%) -->
+        <div class="bg-white p-6 md:p-8 rounded-[32px] shadow-lg shadow-slate-200/50 border border-slate-100">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black">2</div>
+                <div>
+                    <h3 class="font-bold text-xl text-slate-900">Kiểm tra mã EID phần cứng</h3>
+                    <p class="text-slate-500 text-sm">Chính xác tuyệt đối cho mọi dòng máy</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 items-center">
+                <div class="space-y-4">
+                    <p class="text-slate-700">Chỉ có thiết bị sở hữu chip eSIM mới sinh ra mã EID. Thực hiện ngay trên điện thoại của bạn:</p>
+                    <ol class="space-y-3">
+                        <li class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center font-bold text-brand-600 shadow-sm">1</span>
+                            <span class="text-sm font-medium">Mở ứng dụng <strong>Gọi điện (Phone)</strong></span>
+                        </li>
+                        <li class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center font-bold text-brand-600 shadow-sm">2</span>
+                            <span class="text-sm font-medium">Bấm cú pháp: <strong class="text-lg text-slate-900 tracking-wider ml-1">*#06#</strong></span>
+                        </li>
+                        <li class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center font-bold text-brand-600 shadow-sm">3</span>
+                            <span class="text-sm font-medium text-slate-700">Nếu màn hình hiện dải mã có chữ <strong>EID</strong> &rarr; Máy dùng được eSIM.</span>
+                        </li>
+                    </ol>
+                </div>
+                
+                <!-- Hình ảnh minh họa UI -->
+                <div class="bg-slate-900 p-6 rounded-3xl relative overflow-hidden shadow-xl mx-auto w-full max-w-xs">
+                    <div class="absolute top-0 w-full h-10 bg-slate-800 flex justify-center items-center left-0"><div class="w-16 h-2 bg-slate-900 rounded-b-xl"></div></div>
+                    <div class="pt-6 text-center text-white">
+                        <p class="text-slate-400 text-xs mb-2">Thông tin thiết bị</p>
+                        <div class="bg-slate-800 p-3 rounded-xl mb-3 text-left border border-slate-700">
+                            <p class="text-xs text-slate-400">IMEI</p>
+                            <p class="font-mono text-sm tracking-widest">35xxxxxxxxxxxxx</p>
+                        </div>
+                        <div class="bg-brand-900/50 p-3 rounded-xl text-left border border-brand-500/50 relative">
+                            <div class="absolute -right-2 -top-2 bg-brand-500 w-6 h-6 rounded-full flex items-center justify-center animate-bounce"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
+                            <p class="text-xs text-brand-300 font-bold">EID (Quan trọng)</p>
+                            <p class="font-mono text-[10px] tracking-widest break-all text-white mt-1">89049032005008882600000000000000</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KHU VỰC 3: QUÉT MÔI TRƯỜNG WEB (ANIMATION UI) -->
+        <div class="bg-white p-6 md:p-8 rounded-[32px] shadow-lg shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
+            <div class="scanner-line" id="scannerLine"></div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-slate-100 text-slate-500 rounded-xl flex items-center justify-center font-black">3</div>
+                <div>
+                    <h3 class="font-bold text-xl text-slate-900">Quét môi trường trình duyệt</h3>
+                    <p class="text-slate-500 text-sm">Tự động nhận diện hệ điều hành để đưa ra hướng dẫn cài đặt</p>
+                </div>
+            </div>
+
+            <div id="scanInit" class="text-center py-6">
+                <button onclick="startScan()" class="bg-slate-900 text-white font-bold py-3.5 px-8 rounded-full hover:bg-brand-600 transition shadow-xl hover:shadow-brand-500/30 flex items-center mx-auto gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    Quét Hệ Điều Hành
+                </button>
+            </div>
+
+            <div id="scanLoading" class="hidden text-center py-8">
+                <svg class="animate-spin w-10 h-10 text-brand-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <p class="font-bold text-brand-600" id="scanText">Đang phân tích User-Agent...</p>
+            </div>
+
+            <div id="scanResult" class="hidden pt-4">
+                <div class="flex flex-col md:flex-row items-center gap-4 p-5 bg-brand-50 rounded-2xl border border-brand-100">
+                    <div id="osIcon" class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-brand-600 shadow-sm flex-shrink-0"></div>
+                    <div class="text-center md:text-left">
+                        <h4 class="font-black text-slate-900 text-xl mb-1">Thiết bị của bạn: <span id="osResult" class="text-brand-600">Đang tải...</span></h4>
+                        <p class="text-sm text-slate-600">Đây là hướng dẫn kiểm tra & cài đặt cấu hình eSIM dành riêng cho hệ điều hành này.</p>
+                    </div>
+                </div>
+                <div id="guideContent" class="mt-6"></div>
+                <button onclick="document.getElementById('scanResult').classList.add('hidden'); document.getElementById('scanInit').classList.remove('hidden');" class="mt-6 w-full text-brand-600 font-bold hover:underline text-sm">Quét lại thiết bị khác</button>
+            </div>
+        </div>
+
+        <!-- KHU VỰC 4: DANH SÁCH THỦ CÔNG (TAB UI) -->
+        <div class="bg-white p-6 md:p-8 rounded-[32px] shadow-lg shadow-slate-200/50 border border-slate-100">
+            <h3 class="font-bold text-xl text-slate-900 mb-6 text-center">Danh sách chi tiết theo hãng</h3>
+            
+            <!-- Tabs -->
+            <div class="flex overflow-x-auto hide-scroll gap-2 border-b border-slate-200 mb-6 pb-2 justify-start md:justify-center">
+                <button onclick="switchTab('apple')" id="tab-apple" class="tab-btn active px-6 py-2 rounded-full font-bold text-sm text-slate-500 whitespace-nowrap transition">Apple</button>
+                <button onclick="switchTab('samsung')" id="tab-samsung" class="tab-btn px-6 py-2 rounded-full font-bold text-sm text-slate-500 whitespace-nowrap transition">Samsung</button>
+                <button onclick="switchTab('google')" id="tab-google" class="tab-btn px-6 py-2 rounded-full font-bold text-sm text-slate-500 whitespace-nowrap transition">Google</button>
+            </div>
+
+            <!-- Content -->
+            <div id="content-apple" class="tab-content grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+            <div id="content-samsung" class="tab-content hidden grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+            <div id="content-google" class="tab-content hidden grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+        </div>
+
+    </main>
+
+    <footer class="text-center py-8 text-slate-400 text-sm">
+        <p>© 2026 BINSTORE Support Team.</p>
+    </footer>
+
+    <script>
+        // ==========================================
+        // 1. DATA: DANH SÁCH THIẾT BỊ HỖ TRỢ
+        // ==========================================
+        const dbDevices = {
+            apple: [
+                "iPhone 15", "iPhone 15 Plus", "iPhone 15 Pro", "iPhone 15 Pro Max",
+                "iPhone 14", "iPhone 14 Plus", "iPhone 14 Pro", "iPhone 14 Pro Max",
+                "iPhone 13", "iPhone 13 mini", "iPhone 13 Pro", "iPhone 13 Pro Max",
+                "iPhone 12", "iPhone 12 mini", "iPhone 12 Pro", "iPhone 12 Pro Max",
+                "iPhone 11", "iPhone 11 Pro", "iPhone 11 Pro Max",
+                "iPhone XS", "iPhone XS Max", "iPhone XR", "iPhone SE (2020/2022)"
+            ],
+            samsung: [
+                "Galaxy S24", "Galaxy S24+", "Galaxy S24 Ultra",
+                "Galaxy S23", "Galaxy S23+", "Galaxy S23 Ultra", "Galaxy S23 FE",
+                "Galaxy S22", "Galaxy S22+", "Galaxy S22 Ultra",
+                "Galaxy S21", "Galaxy S21+", "Galaxy S21 Ultra",
+                "Galaxy S20", "Galaxy S20+", "Galaxy S20 Ultra",
+                "Galaxy Z Fold5", "Galaxy Z Flip5", "Galaxy Z Fold4", "Galaxy Z Flip4",
+                "Galaxy Z Fold3", "Galaxy Z Flip3", "Galaxy Note 20 Ultra"
+            ],
+            google: [
+                "Pixel 8", "Pixel 8 Pro", "Pixel 7", "Pixel 7 Pro", "Pixel 7a",
+                "Pixel 6", "Pixel 6 Pro", "Pixel 6a", "Pixel 5", "Pixel 4", "Pixel 4 XL"
+            ]
+        };
+
+        // Gộp tất cả thành 1 mảng dẹt để phục vụ tìm kiếm
+        const allDevices = [...dbDevices.apple, ...dbDevices.samsung, ...dbDevices.google];
+
+        // ==========================================
+        // 2. LOGIC TÌM KIẾM & AUTO-SUGGEST
+        // ==========================================
+        const searchInput = document.getElementById('deviceSearch');
+        const suggestBox = document.getElementById('suggestBox');
+        const suggestList = document.getElementById('suggestList');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultArea = document.getElementById('searchResultArea');
+
+        function handleSearchInput() {
+            const query = searchInput.value.toLowerCase().trim();
+            
+            // Xử lý nút X (Clear)
+            if(query.length > 0) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+
+            resultArea.classList.add('hidden');
+
+            if(query.length < 2) {
+                suggestBox.classList.add('hidden');
+                return;
+            }
+
+            // Lọc danh sách gợi ý
+            const matches = allDevices.filter(device => device.toLowerCase().includes(query));
+            
+            if(matches.length > 0) {
+                suggestBox.classList.remove('hidden');
+                suggestList.innerHTML = matches.map(m => `
+                    <li onclick="selectDevice('${m}')" class="px-4 py-3 hover:bg-brand-50 cursor-pointer font-medium text-slate-700 flex items-center gap-2 border-b border-slate-50 last:border-0">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        ${m}
+                    </li>
+                `).join('');
+            } else {
+                suggestBox.classList.add('hidden');
+                executeSearch(query); // Tự tìm nếu không có trong gợi ý
+            }
+        }
+
+        function selectDevice(name) {
+            searchInput.value = name;
+            suggestBox.classList.add('hidden');
+            executeSearch(name.toLowerCase());
+        }
+
+        function executeSearch(query) {
+            const isSupported = allDevices.some(device => device.toLowerCase() === query || device.toLowerCase().includes(query));
+            resultArea.classList.remove('hidden');
+            
+            if(isSupported) {
+                document.getElementById('searchMatch').classList.remove('hidden');
+                document.getElementById('searchMatch').classList.add('flex');
+                document.getElementById('searchNoMatch').classList.add('hidden');
+                document.getElementById('searchNoMatch').classList.remove('flex');
+                document.getElementById('matchText').innerHTML = `Tuyệt vời! <strong>${query.toUpperCase()}</strong> nằm trong danh sách hỗ trợ eSIM.`;
+            } else {
+                document.getElementById('searchMatch').classList.add('hidden');
+                document.getElementById('searchMatch').classList.remove('flex');
+                document.getElementById('searchNoMatch').classList.remove('hidden');
+                document.getElementById('searchNoMatch').classList.add('flex');
+            }
+        }
+
+        function clearSearch() {
+            searchInput.value = '';
+            clearBtn.classList.add('hidden');
+            suggestBox.classList.add('hidden');
+            resultArea.classList.add('hidden');
+            searchInput.focus();
+        }
+
+        // Đóng gợi ý khi click ra ngoài
+        document.addEventListener('click', function(e) {
+            if(!searchInput.contains(e.target) && !suggestBox.contains(e.target)) {
+                suggestBox.classList.add('hidden');
+            }
+        });
+
+        // ==========================================
+        // 3. LOGIC QUÉT NHẬN DIỆN OS
+        // ==========================================
+        function startScan() {
+            document.getElementById('scanInit').classList.add('hidden');
+            document.getElementById('scanLoading').classList.remove('hidden');
+            document.getElementById('scannerLine').style.display = 'block';
+
+            let textElement = document.getElementById('scanText');
+            
+            setTimeout(() => { textElement.innerText = "Đang thu thập User-Agent..."; }, 800);
+            setTimeout(() => { textElement.innerText = "Đang kiểm tra giao thức mạng..."; }, 1500);
+            
+            setTimeout(() => {
+                document.getElementById('scanLoading').classList.add('hidden');
+                document.getElementById('scannerLine').style.display = 'none';
+                showScanResult();
+            }, 2500);
+        }
+
+        function showScanResult() {
+            document.getElementById('scanResult').classList.remove('hidden');
+            
+            const ua = navigator.userAgent;
+            let os = "Không xác định";
+            let icon = "";
+            let guide = "";
+
+            if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+                os = "Apple iOS";
+                icon = '<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0z"/></svg>';
+                guide = `
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <h5 class="font-bold text-slate-800 mb-3 text-lg border-b border-slate-200 pb-2">Hướng dẫn kiểm tra trên iPhone</h5>
+                        <ul class="space-y-2 text-slate-600 text-sm">
+                            <li class="flex items-start gap-2"><span class="text-brand-500 font-bold mt-0.5">1.</span> Vào <strong>Cài đặt (Settings)</strong></li>
+                            <li class="flex items-start gap-2"><span class="text-brand-500 font-bold mt-0.5">2.</span> Chọn <strong>Di động (Cellular)</strong></li>
+                            <li class="flex items-start gap-2"><span class="text-brand-500 font-bold mt-0.5">3.</span> Nếu có dòng <strong>Thêm eSIM (Add eSIM)</strong> thì máy bạn hỗ trợ!</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (/android/i.test(ua)) {
+                os = "Android System";
+                icon = '<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993s-.4482.9997-.9993.9997zm-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993s-.4482.9997-.9993.9997zm11.4045-6.02l1.9973-3.4592c.1158-.2018.0468-.4582-.1546-.574-.2031-.1158-.4596-.0464-.5754.1546l-2.0163 3.4941c-1.464-.6724-3.134-1.0436-4.932-1.0436-1.7981 0-3.4682.3712-4.9322 1.0436l-2.016-3.4941c-.1158-.201-.3723-.2704-.5754-.1546-.2014.1158-.2704.3722-.1546.574l1.9973 3.4592c-4.1489 2.2709-6.9535 6.4526-7.1472 11.2335h23.6896c-.1933-4.7809-2.9978-8.9626-7.1466-11.2335z"/></svg>';
+                guide = `
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <h5 class="font-bold text-slate-800 mb-3 text-lg border-b border-slate-200 pb-2">Hướng dẫn kiểm tra trên Android</h5>
+                        <ul class="space-y-2 text-slate-600 text-sm">
+                            <li class="flex items-start gap-2"><span class="text-brand-500 font-bold mt-0.5">1.</span> Vào <strong>Cài đặt (Settings)</strong></li>
+                            <li class="flex items-start gap-2"><span class="text-brand-500 font-bold mt-0.5">2.</span> Chọn <strong>Kết nối (Connections)</strong> > <strong>Quản lý SIM (SIM Manager)</strong></li>
+                            <li class="flex items-start gap-2"><span class="text-brand-500 font-bold mt-0.5">3.</span> Nếu có tuỳ chọn <strong>Thêm eSIM (Add eSIM)</strong> thì máy bạn hỗ trợ!</li>
+                        </ul>
+                    </div>
+                `;
+            } else {
+                os = "Máy tính (PC/Mac)";
+                icon = '<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M20 18v-4h-3v1h-2v-1H9v1H7v-1H4v4h16zM4 12h16V6H4v6zm-2 8h20v-2H2v2zm22-16H0v12h24V4z"/></svg>';
+                guide = `<p class="text-sm text-slate-500 p-4 bg-slate-50 rounded-xl text-center">Vui lòng sử dụng điện thoại di động để tính năng quét hoạt động hiệu quả nhất.</p>`;
+            }
+
+            document.getElementById('osResult').innerText = os;
+            document.getElementById('osIcon').innerHTML = icon;
+            document.getElementById('guideContent').innerHTML = guide;
+        }
+
+        // ==========================================
+        // 4. LOGIC TAB UI (DANH SÁCH THỦ CÔNG)
+        // ==========================================
+        function initTabs() {
+            renderTabContent('apple', dbDevices.apple);
+            renderTabContent('samsung', dbDevices.samsung);
+            renderTabContent('google', dbDevices.google);
+        }
+
+        function renderTabContent(brandId, arrayData) {
+            const container = document.getElementById(`content-${brandId}`);
+            container.innerHTML = arrayData.map(item => `
+                <div class="px-3 py-2 bg-slate-50 text-slate-700 text-sm font-medium rounded-lg border border-slate-100 hover:border-brand-300 hover:bg-brand-50 transition cursor-default">
+                    ${item}
+                </div>
+            `).join('');
+        }
+
+        function switchTab(brandId) {
+            // Đổi style cho Tab Buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${brandId}`).classList.add('active');
+
+            // Đổi hiển thị Content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(`content-${brandId}`).classList.remove('hidden');
+        }
+
+        // Gọi khởi tạo khi web load xong
+        document.addEventListener('DOMContentLoaded', () => {
+            initTabs();
+        });
+    </script>
+</body>
+</html>
